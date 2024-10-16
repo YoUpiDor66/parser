@@ -1,0 +1,79 @@
+<library>
+    <book id="1">
+        <title>Java Programming</title>
+        <author>John Doe</author>
+        <year>1983</year>
+        <genre>Programming</genre>
+        <price currency="GBP">86.97</price>
+        <isbn>978-7-907356128</isbn>
+        <awards>
+            <award>Book of the Year</award>
+            <award>Best Seller</award>
+            <award>Book of the Year</award>
+        </awards>
+    </book>
+    <book id="2">
+        <title>Clean Code</title>
+        <author>Robert C. Martin</author>
+        <year>2017</year>
+        <genre>History</genre>
+        <price currency="JPY">52.02</price>
+        <format>Ebook</format>
+        <publisher>
+            <name>Modern Publishing</name>
+            <address>
+                <city>Tokyo</city>
+                <country>UK</country>
+            </address>
+        </publisher>
+        <reviews>
+            <review>
+                <user>dave</user>
+                <rating>2</rating>
+                <comment>Great book!</comment>
+            </review>
+            <review>
+                <user>dave</user>
+                <rating>3</rating>
+                <comment>Excellent content.</comment>
+            </review>
+        </reviews>
+        <language>French</language>
+        <translator>John Doe</translator>
+        <awards>
+            <award>Critics' Choice</award>
+        </awards>
+    </book>
+    <book id="3">
+        <title>Java Programming</title>
+        <author>Jane Austen</author>
+        <year>1983</year>
+        <genre>Biography</genre>
+        <price currency="JPY">79.09</price>
+        <isbn>978-4-770741096</isbn>
+        <publisher>
+            <name>Modern Publishing</name>
+            <address>
+                <city>Tokyo</city>
+                <country>UK</country>
+            </address>
+        </publisher>
+        <translator>Isaac Asimov</translator>
+        <awards>
+            <award>Critics' Choice</award>
+            <award>Best Seller</award>
+            <award>Book of the Year</award>
+        </awards>
+    </book>
+    <book id="4">
+        <title>Java Programming</title>
+        <author>Robert C. Martin</author>
+        <year>2001</year>
+        <genre>Programming</genre>
+        <price currency="EUR">58.07</price>
+        <format>Ebook</format>
+        <awards>
+            <award>Critics' Choice</award>
+        </awards>
+    </book>
+</library>

@@ -1,136 +1,101 @@
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XMLParser {
-    public static Library parse(String filePath) throws Exception {
-        File inputFile = new File(filePath);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        Document doc = dBuilder.parse(inputFile);
-        doc.getDocumentElement().normalize();
 
-        Library library = new Library();
-        NodeList bookNodes = doc.getElementsByTagName("book");
+    public static List<Book> parseXML(String filePath) throws IOException {
+        //Метод для парсинга XML-файла
+        List<Book> books = new ArrayList<>();
+        Book currentBook = null;
+        Publisher currentPublisher = null;
+        Address currentAddress = null;
+        Review currentReview = null;
+        List<Review> currentReviews = null;
+        List<String> currentAwards = null;
 
-        for (int i = 0; i < bookNodes.getLength(); i++) {
-            Element bookElement = (Element) bookNodes.item(i);
-            Book book = parseBook(bookElement);
-            library.addBook(book);
-        }
-
-        return library;
-    }
-
-    private static Book parseBook(Element bookElement) {
-        Book book = new Book();
-        book.setId(Integer.parseInt(bookElement.getAttribute("id")));
-
-        Element titleElement = (Element) bookElement.getElementsByTagName("title").item(0);
-        book.setTitle(titleElement.getTextContent());
-
-        Element authorElement = (Element) bookElement.getElementsByTagName("author").item(0);
-        book.setAuthor(authorElement.getTextContent());
-
-        Element yearElement = (Element) bookElement.getElementsByTagName("year").item(0);
-        book.setYear(Integer.parseInt(yearElement.getTextContent()));
-
-        Element genreElement = (Element) bookElement.getElementsByTagName("genre").item(0);
-        book.setGenre(genreElement.getTextContent());
-
-        Element priceElement = (Element) bookElement.getElementsByTagName("price").item(0);
-        Price price = new Price();
-        price.setAmount(Double.parseDouble(priceElement.getTextContent()));
-        price.setCurrency(priceElement.getAttribute("currency"));
-        book.setPrice(price);
-
-        if (bookElement.getElementsByTagName("isbn").getLength() > 0) {
-            Element isbnElement = (Element) bookElement.getElementsByTagName("isbn").item(0);
-            book.setIsbn(isbnElement.getTextContent());
-        }
-
-        if (bookElement.getElementsByTagName("format").getLength() > 0) {
-            Element formatElement = (Element) bookElement.getElementsByTagName("format").item(0);
-            book.setFormat(formatElement.getTextContent());
-        }
-
-        if (bookElement.getElementsByTagName("publisher").getLength() > 0) {
-            Element publisherElement = (Element) bookElement.getElementsByTagName("publisher").item(0);
-            Publisher publisher = parsePublisher(publisherElement);
-            book.setPublisher(publisher);
-        }
-
-        if (bookElement.getElementsByTagName("reviews").getLength() > 0) {
-            Element reviewsElement = (Element) bookElement.getElementsByTagName("reviews").item(0);
-            NodeList reviewNodes = reviewsElement.getElementsByTagName("review");
-            for (int j = 0; j < reviewNodes.getLength(); j++) {
-                Element reviewElement = (Element) reviewNodes.item(j);
-                Review review = parseReview(reviewElement);
-                book.addReview(review);
+        //Чтение файла построчно
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            line = line.trim();
+            //Парсинг строк XML
+            if (line.startsWith("<book")) {
+                currentBook = new Book();
+                String id = line.split("\"")[1];
+                currentBook.setId(Integer.parseInt(id));
+            } else if (line.startsWith("<title>")) {
+                currentBook.setTitle(line.substring(7, line.length() - 8));
+            } else if (line.startsWith("<author>")) {
+                currentBook.setAuthor(line.substring(8, line.length() - 9));
+            } else if (line.startsWith("<year>")) {
+                currentBook.setYear(Integer.parseInt(line.substring(6, line.length() - 7)));
+            } else if (line.startsWith("<genre>")) {
+                currentBook.setGenre(line.substring(7, line.length() - 8));
+            } else if (line.startsWith("<price")) {
+                String currency = line.split("\"")[1];
+                String price = line.split(">")[1].split("<")[0];
+                currentBook.setPrice(Double.parseDouble(price));
+                currentBook.setCurrency(currency);
+            } else if (line.startsWith("<isbn>")) {
+                currentBook.setIsbn(line.substring(6, line.length() - 7));
+            } else if (line.startsWith("<format>")) {
+                currentBook.setFormat(line.substring(8, line.length() - 9));
+            } else if (line.startsWith("<publisher>")) {
+                currentPublisher = new Publisher();
+            } else if (line.startsWith("<name>")) {
+                currentPublisher.setName(line.substring(6, line.length() - 7));
+            } else if (line.startsWith("<address>")) {
+                currentAddress = new Address();
+            } else if (line.startsWith("<city>")) {
+                currentAddress.setCity(line.substring(6, line.length() - 7));
+            } else if (line.startsWith("<country>")) {
+                currentAddress.setCountry(line.substring(9, line.length() - 10));
+            } else if (line.startsWith("<reviews>")) {
+                currentReviews = new ArrayList<>();
+            } else if (line.startsWith("<review>")) {
+                currentReview = new Review();
+            } else if (line.startsWith("<user>")) {
+                currentReview.setUser(line.substring(6, line.length() - 7));
+            } else if (line.startsWith("<rating>")) {
+                currentReview.setRating(Integer.parseInt(line.substring(8, line.length() - 9)));
+            } else if (line.startsWith("<comment>")) {
+                currentReview.setComment(line.substring(9, line.length() - 10));
+            } else if (line.startsWith("<language>")) {
+                currentBook.setLanguage(line.substring(10, line.length() - 11));
+            } else if (line.startsWith("<translator>")) {
+                currentBook.setTranslator(line.substring(12, line.length() - 13));
+            } else if (line.startsWith("<awards>")) {
+                currentAwards = new ArrayList<>();
+            } else if (line.startsWith("<award>")) {
+                currentAwards.add(line.substring(7, line.length() - 8));
+            } else if (line.startsWith("</book>")) {
+                books.add(currentBook);
+            } else if (line.startsWith("</publisher>")) {
+                currentPublisher.setAddress(currentAddress);
+                currentBook.setPublisher(currentPublisher);
+            } else if (line.startsWith("</review>")) {
+                currentReviews.add(currentReview);
+            } else if (line.startsWith("</reviews>")) {
+                currentBook.setReviews(currentReviews);
+            } else if (line.startsWith("</awards>")) {
+                currentBook.setAwards(currentAwards);
             }
         }
+        reader.close();
+        return books;
+    }
 
-        if (bookElement.getElementsByTagName("language").getLength() > 0) {
-            Element languageElement = (Element) bookElement.getElementsByTagName("language").item(0);
-            book.setLanguage(languageElement.getTextContent());
-        }
-
-        if (bookElement.getElementsByTagName("translator").getLength() > 0) {
-            Element translatorElement = (Element) bookElement.getElementsByTagName("translator").item(0);
-            book.setTranslator(translatorElement.getTextContent());
-        }
-
-        if (bookElement.getElementsByTagName("awards").getLength() > 0) {
-            Element awardsElement = (Element) bookElement.getElementsByTagName("awards").item(0);
-            NodeList awardNodes = awardsElement.getElementsByTagName("award");
-            for (int j = 0; j < awardNodes.getLength(); j++) {
-                Element awardElement = (Element) awardNodes.item(j);
-                book.addAward(awardElement.getTextContent());
+    public static void main(String[] args) {
+        try {
+            List<Book> books = parseXML("library.xml");
+            for (Book book : books) {
+                System.out.println(book);
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        return book;
-    }
-
-    private static Publisher parsePublisher(Element publisherElement) {
-        Publisher publisher = new Publisher();
-        Element nameElement = (Element) publisherElement.getElementsByTagName("name").item(0);
-        publisher.setName(nameElement.getTextContent());
-
-        Element addressElement = (Element) publisherElement.getElementsByTagName("address").item(0);
-        Address address = parseAddress(addressElement);
-        publisher.setAddress(address);
-
-        return publisher;
-    }
-
-    private static Address parseAddress(Element addressElement) {
-        Address address = new Address();
-        Element cityElement = (Element) addressElement.getElementsByTagName("city").item(0);
-        address.setCity(cityElement.getTextContent());
-
-        Element countryElement = (Element) addressElement.getElementsByTagName("country").item(0);
-        address.setCountry(countryElement.getTextContent());
-
-        return address;
-    }
-
-    private static Review parseReview(Element reviewElement) {
-        Review review = new Review();
-        Element userElement = (Element) reviewElement.getElementsByTagName("user").item(0);
-        review.setUser(userElement.getTextContent());
-
-        Element ratingElement = (Element) reviewElement.getElementsByTagName("rating").item(0);
-        review.setRating(Integer.parseInt(ratingElement.getTextContent()));
-
-        Element commentElement = (Element) reviewElement.getElementsByTagName("comment").item(0);
-        review.setComment(commentElement.getTextContent());
-
-        return review;
     }
 }
